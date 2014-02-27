@@ -22,18 +22,8 @@ export PATH=$SVC_ROOT/build/node/bin:/opt/local/bin:/usr/sbin/:/usr/bin:$PATH
 # Install zookeeper package, need to touch this file to disable the license prompt
 touch /opt/local/.dli_license_accepted
 
-#
-# XXX in the future this should come from SAPI and we should be pulling out
-# the "application" that's the parent of this instance. (see: SAPI-173)
-#
-if [[ -n $(mdata-get sdc:tags.manta_role) ]]; then
-    export FLAVOR="manta"
-else
-    export FLAVOR="sdc"
-fi
 
 function sdc_manatee_setup {
-
     # vars used by manatee-* tools
     ZONE_UUID=$(json -f /var/tmp/metadata.json ZONE_UUID)
     DATASET=zones/$ZONE_UUID/data/manatee
@@ -62,49 +52,6 @@ function sdc_manatee_setup {
     common_enable_services
 }
 
-function manta_manatee_setup {
-    # XXX See MANTA-1613.  These manifests are shipped for SDC but aren't
-    # relevant for the manta image, so remove them until the situation with
-    # SDC/manta manifests is resolved.
-    rm -rf $SVC_ROOT/sapi_manifests/registrar
-    rm -rf $SVC_ROOT/sapi_manifests/sitter
-
-    echo "Running common setup scripts"
-    manta_common_presetup
-
-    echo "Adding local manifest directories"
-    manta_add_manifest_dir "/opt/smartdc/manatee"
-
-    # MANTA-1360 no args to manta_common_setup so we don't rotate the 'manatee'
-    # entry which stomps over the other manatee logs
-    manta_common_setup
-    manta_setup_manatee_env
-
-    ZONE_UUID=`zoneadm list -p | cut -d ':' -f2`
-    DATASET=zones/$ZONE_UUID/data/manatee
-    PARENT_DATASET=zones/$ZONE_UUID/data
-    DATASET_MOUNT_DIR=/manatee/pg
-    PG_DIR=/manatee/pg/data
-    PG_LOG_DIR=/var/pg
-    ZONE_IP=`ifconfig net0 | nawk '{if ($1 == "inet") print $2}'`
-    SITTER_CFG_FILE=/opt/smartdc/manatee/etc/sitter.json
-    SNAPSHOT_CFG_FILE=/opt/smartdc/manatee/etc/snapshotter.json
-    BACKUP_CFG_FILE=/opt/smartdc/manatee/etc/backupserver.json
-    SHARD=$(json -f /var/tmp/metadata.json SERVICE_NAME)
-
-    common_manatee_setup
-
-    # ZK configs
-    ZK_TIMEOUT=30000
-
-    # XXX I think I actually want this
-    manta_ensure_zk
-
-    common_enable_services
-
-    manta_common_setup_end
-}
-
 function common_enable_services {
     # import services
     echo "Starting snapshotter"
@@ -116,13 +63,7 @@ function common_enable_services {
     svcadm enable manatee-backupserver
 
     svccfg import /opt/smartdc/manatee/smf/manifests/sitter.xml
-
-    if [[ ${FLAVOR} == "manta" ]]; then
-        # With Manta we *always* want sitter. For SDC we'll let configure
-        # decide if it wants to enable sitter or not.
-        echo "Starting sitter"
-        svcadm enable manatee-sitter
-    fi
+    # For SDC we'll let configure decide if it wants to enable sitter or not.
 }
 
 function common_manatee_setup {
@@ -169,12 +110,7 @@ function common_manatee_setup {
 }
 
 function add_manatee_profile_functions {
-
-    if [[ ${FLAVOR} == "manta" ]]; then
-        ZK_IPS=$(json -f ${METADATA} ZK_SERVERS | json -a host)
-    else
-        ZK_IPS=${BINDER_ADMIN_IPS}
-    fi
+    ZK_IPS=${BINDER_ADMIN_IPS}
 
     # get correct ZK_IPS
     echo "source /opt/smartdc/etc/zk_ips.sh" >> $PROFILE
@@ -192,52 +128,18 @@ function add_manatee_profile_functions {
 }
 
 
-function manta_setup_manatee_env {
-    mkdir -p /var/log/manatee
+# Local manifests
+CONFIG_AGENT_LOCAL_MANIFESTS_DIRS=/opt/smartdc/$role
 
-    #.bashrc
-    echo "export PATH=\$PATH:/opt/smartdc/manatee/lib/tools:/opt/smartdc/manatee/lib/pg_dump/" >>/root/.bashrc
-    echo "alias psql='sudo -u postgres psql'" >>/root/.bashrc
+# Include common utility functions (then run the boilerplate)
+source /opt/smartdc/boot/lib/util.sh
+sdc_common_setup
 
-    #cron
-    local crontab=/tmp/.manta_manatee_cron
-    crontab -l > $crontab
+# Do the SDC-specific manatee stuff.
+sdc_manatee_setup
+add_manatee_profile_functions
 
-    echo "0 * * * * /opt/smartdc/manatee/lib/pg_dump/pg_dump.sh >> /var/log/manatee/pgdump.log 2>&1" >> $crontab
-    [[ $? -eq 0 ]] || fatal "Unable to write to $crontab"
-    crontab $crontab
-    [[ $? -eq 0 ]] || fatal "Unable import crons"
-
-    manta_add_logadm_entry "manatee-sitter"
-    manta_add_logadm_entry "manatee-backupserver"
-    manta_add_logadm_entry "manatee-snapshotter"
-    manta_add_logadm_entry "postgresql" "/var/pg"
-    manta_add_logadm_entry "pgdump" "/var/log/manatee"
-}
-
-if [[ ${FLAVOR} == "manta" ]]; then
-
-    source ${DIR}/scripts/util.sh
-    source ${DIR}/scripts/services.sh
-
-    manta_manatee_setup
-    add_manatee_profile_functions
-
-else # ${FLAVOR} == "sdc"
-
-    # Local manifests
-    CONFIG_AGENT_LOCAL_MANIFESTS_DIRS=/opt/smartdc/$role
-
-    # Include common utility functions (then run the boilerplate)
-    source /opt/smartdc/boot/lib/util.sh
-    sdc_common_setup
-
-    # Do the SDC-specific manatee stuff.
-    sdc_manatee_setup
-    add_manatee_profile_functions
-
-    # All done, run boilerplate end-of-setup
-    sdc_setup_complete
-fi
+# All done, run boilerplate end-of-setup
+sdc_setup_complete
 
 exit 0
