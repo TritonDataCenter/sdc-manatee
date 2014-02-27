@@ -1,0 +1,17 @@
+{
+    "name": "sdc-manatee",
+    "version": "1.0.0",
+    "private": true,
+    "description": "H/A Postgres Minder",
+    "author": "Joyent (joyent.com)",
+    "repository": {
+        "type": "git",
+        "url": "git@git.joyent.com:sdc-manatee.git"
+    },
+    "engines": {
+        "node": ">=0.10"
+    },
+    "dependencies": {
+        "manatee": "git+ssh://git@github.com:joyent/manatee.git#master"
+    }
+}
