@@ -52,7 +52,27 @@ DISTCLEAN_FILES = ./node_modules
 
 .PHONY: release
 release: all deps docs $(SMF_MANIFESTS)
-	XXX
+	@echo "Building $(RELEASE_TARBALL)"
+	@mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/manatee
+	@mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/boot
+	@mkdir -p $(RELSTAGEDIR)/site
+	@touch $(RELSTAGEDIR)/site/.do-not-delete-me
+	@mkdir -p $(RELSTAGEDIR)/root
+	cp -r   $(ROOT)/build \
+		$(ROOT)/bin \
+		$(ROOT)/deps \
+		$(ROOT)/node_modules \
+		$(ROOT)/package.json \
+		$(ROOT)/sapi_manifests \
+		$(ROOT)/smf \
+		$(RELSTAGEDIR)/root/opt/smartdc/manatee/
+	mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/boot/scripts
+	cp -R $(RELSTAGEDIR)/root/opt/smartdc/manatee/build/scripts/* \
+	    $(RELSTAGEDIR)/root/opt/smartdc/boot/scripts/
+	cp -R $(ROOT)/boot/* \
+	    $(RELSTAGEDIR)/root/opt/smartdc/boot/
+	(cd $(RELSTAGEDIR) && $(TAR) -jcf $(ROOT)/$(RELEASE_TARBALL) root site)
+	@rm -rf $(RELSTAGEDIR)
 
 .PHONY: publish
 publish: release
