@@ -61,6 +61,7 @@ release: all deps docs $(SMF_MANIFESTS)
 	cp -r   $(ROOT)/build \
 		$(ROOT)/bin \
 		$(ROOT)/deps \
+		$(ROOT)/etc \
 		$(ROOT)/node_modules \
 		$(ROOT)/package.json \
 		$(ROOT)/sapi_manifests \
@@ -68,6 +69,8 @@ release: all deps docs $(SMF_MANIFESTS)
 		$(RELSTAGEDIR)/root/opt/smartdc/manatee/
 	mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/boot/scripts
 	cp -R $(ROOT)/boot/* \
+	    $(RELSTAGEDIR)/root/opt/smartdc/boot/
+	cp -R $(ROOT)/deps/sdc-scripts/* \
 	    $(RELSTAGEDIR)/root/opt/smartdc/boot/
 	(cd $(RELSTAGEDIR) && $(TAR) -jcf $(ROOT)/$(RELEASE_TARBALL) root site)
 	@rm -rf $(RELSTAGEDIR)
