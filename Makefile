@@ -67,8 +67,6 @@ release: all deps docs $(SMF_MANIFESTS)
 		$(ROOT)/smf \
 		$(RELSTAGEDIR)/root/opt/smartdc/manatee/
 	mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/boot/scripts
-	cp -R $(RELSTAGEDIR)/root/opt/smartdc/manatee/build/scripts/* \
-	    $(RELSTAGEDIR)/root/opt/smartdc/boot/scripts/
 	cp -R $(ROOT)/boot/* \
 	    $(RELSTAGEDIR)/root/opt/smartdc/boot/
 	(cd $(RELSTAGEDIR) && $(TAR) -jcf $(ROOT)/$(RELEASE_TARBALL) root site)
