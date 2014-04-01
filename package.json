@@ -12,6 +12,6 @@
         "node": ">=0.10"
     },
     "dependencies": {
-        "manatee": "git+ssh://git@github.com:joyent/manatee.git#5afe9dd",
+        "manatee": "git+ssh://git@github.com:joyent/manatee.git#5afe9dd"
     }
 }
