@@ -14,33 +14,32 @@
         <dependency name="filesystem" grouping="require_all" restart_on="error" type="service">
             <service_fmri value="svc:/system/filesystem/local" />
         </dependency>
+
         <dependency name="mdata" grouping="require_all" restart_on="none" type="service">
             <service_fmri value="svc:/smartdc/mdata:execute" />
         </dependency>
 
-        <exec_method type="method"
-            name="start"
-            exec="sudo -u postgres /usr/bin/ctrun -l child -o noorphan node /opt/smartdc/manatee/node_modules/manatee/sitter.js -v -f etc/sitter.json &amp;"
-            timeout_seconds="65">
-            <method_context working_directory="/opt/smartdc/manatee">
+        <dependency name="config-agent" grouping="optional_all" restart_on="none" type="service">
+            <service_fmri value="svc:/smartdc/application/config-agent" />
+        </dependency>
+
+        <exec_method name='start' type='method' exec='/opt/smartdc/manatee/build/node/bin/node ./node_modules/manatee/sitter.js -v -f etc/sitter.json &amp;' timeout_seconds='65'>
+            <method_context working_directory='/opt/smartdc/manatee'>
+                <method_credential user='postgres' group='postgres' />
                 <method_environment>
-                    <envvar name="PATH"
-                        value="/opt/smartdc/manatee/build/node/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin"/>
-                    <envvar name="LD_PRELOAD_32"
-                        value="/usr/lib/extendedFILE.so.1" />
+                    <envvar name='PATH' value='/opt/smartdc/manatee/build/node/bin:/opt/local/bin:/usr/bin:/usr/sbin:/bin'/>
+                    <envvar name='LD_PRELOAD_32' value='/usr/lib/extendedFILE.so.1'/>
                 </method_environment>
             </method_context>
         </exec_method>
-
-        <exec_method type="method" name="stop" exec=":kill" timeout_seconds="30" />
+        <exec_method name='stop' type='method' exec=':kill -2' timeout_seconds='60'/>
         <instance name="default" enabled="true" />
-
-        <stability value='Unstable' />
-
+        <stability value='Unstable'/>
         <template>
-            <common_name><loctext xml:lang="C">Joyent HA Postgres Service</loctext></common_name>
+            <common_name>
+                <loctext xml:lang='C'>Joyent HA Postgres Service</loctext>
+            </common_name>
         </template>
-
     </service>
 </service_bundle>
 
