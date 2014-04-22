@@ -48,6 +48,7 @@ function sdc_manatee_setup {
     echo "export PATH=\$PATH:/opt/smartdc/$role/build/node/bin:/opt/smartdc/$role/node_modules/.bin" >>/root/.profile
 
     #cron
+    mkdir -p /var/log/manatee/
     local crontab=/tmp/.sdc_manatee_cron
     crontab -l > $crontab
 
@@ -55,6 +56,11 @@ function sdc_manatee_setup {
     [[ $? -eq 0 ]] || fatal "Unable to write to $crontab"
     crontab $crontab
     [[ $? -eq 0 ]] || fatal "Unable import crons"
+
+    # rotate pgdump logs
+    sdc_log_rotation_add pg_dump /var/log/manatee/pgdump.log 1g
+
+    sdc_log_rotation_setup_end
 
     common_manatee_setup
 
