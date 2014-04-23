@@ -58,7 +58,7 @@ function sdc_manatee_setup {
     [[ $? -eq 0 ]] || fatal "Unable import crons"
 
     # rotate pgdump logs
-    sdc_log_rotation_add pg_dump /var/log/manatee/pgdump.log 1g
+    sdc_log_rotation_add pgdump /var/log/manatee/pgdump.log 1g
 
     sdc_log_rotation_setup_end
 
