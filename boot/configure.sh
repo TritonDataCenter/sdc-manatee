@@ -7,6 +7,15 @@
 export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 set -o xtrace
 
+# set shared_buffers to 1/4 provisoned RSS
+set -o errexit
+set -o pipefail
+cp /opt/smartdc/manatee/etc/postgresql.sdc.conf /opt/smartdc/manatee/etc/postgresql.sdc.conf.in
+local shared_buffers="$(( $(prtconf -m) / 4 ))MB"
+sed -e "s#@@SHARED_BUFFERS@@#$shared_buffers#g" \
+    /opt/smartdc/manatee/etc/postgresql.sdc.conf.in > /opt/smartdc/manatee/etc/postgresql.sdc.conf
+set +o errexit
+set +o pipefail
 
 # For SDC we want to check if we should enable or disable the sitter on each boot.
 svccfg import /opt/smartdc/manatee/smf/manifests/sitter.xml
@@ -21,6 +30,5 @@ else
     echo "Starting sitter"
     svcadm enable manatee-sitter
 fi
-
 
 exit 0
