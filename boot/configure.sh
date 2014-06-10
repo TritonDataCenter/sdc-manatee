@@ -11,7 +11,7 @@ set -o xtrace
 set -o errexit
 set -o pipefail
 cp /opt/smartdc/manatee/etc/postgresql.sdc.conf /opt/smartdc/manatee/etc/postgresql.sdc.conf.in
-local shared_buffers="$(( $(prtconf -m) / 4 ))MB"
+shared_buffers="$(( $(prtconf -m) / 4 ))MB"
 sed -e "s#@@SHARED_BUFFERS@@#$shared_buffers#g" \
     /opt/smartdc/manatee/etc/postgresql.sdc.conf.in > /opt/smartdc/manatee/etc/postgresql.sdc.conf
 set +o errexit

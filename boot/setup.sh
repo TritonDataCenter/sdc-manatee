@@ -122,16 +122,6 @@ function common_manatee_setup {
     mkdir -p $PG_LOG_DIR
     chown -R postgres $PG_LOG_DIR
     chmod 700 $PG_LOG_DIR
-
-    # set shared_buffers to 1/4 provisoned RSS
-    set -o errexit
-    set -o pipefail
-    cp /opt/smartdc/manatee/etc/postgresql.sdc.conf /opt/smartdc/manatee/etc/postgresql.sdc.conf.in
-    local shared_buffers="$(( $(prtconf -m) / 4 ))MB"
-    sed -e "s#@@SHARED_BUFFERS@@#$shared_buffers#g" \
-        /opt/smartdc/manatee/etc/postgresql.sdc.conf.in > /opt/smartdc/manatee/etc/postgresql.sdc.conf
-    set +o errexit
-    set +o pipefail
 }
 
 function add_manatee_profile_functions {
