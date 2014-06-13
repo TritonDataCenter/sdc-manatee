@@ -5,22 +5,6 @@
     "ttl": 60,
     "ip": "{{PRIMARY_IP}}",
     "zoneId": "{{ZONE_UUID}}",
-    "heartbeatServerPort": 12344,
-    "heartbeatClientCfg": {
-        "connectTimeout": 2000,
-        "heartbeatInterval": 1000,
-        "requestTimeout": 10000,
-        "pgUrl": "tcp://postgres@{{{PRIMARY_IP}}}:5432/postgres",
-        "url": "{{PRIMARY_IP}}",
-        "retry": {
-            "retry": 2
-        }
-    },
-    "heartbeatServerCfg": {
-        "expirationTime": 60000,
-        "pollInterval": 1000,
-        "port": 12344
-    },
     "postgresMgrCfg": {
         "dataDir": "/manatee/pg/data",
         "dbUser": "postgres",
@@ -59,23 +43,12 @@
         }
     },
     "zkCfg": {
-        "servers": [
-        {{#ZK_HA_SERVERS}}
-          {
-            "host": "{{host}}",
-            "port": {{port}}
-          }{{^last}}, {{/last}}
-        {{/ZK_HA_SERVERS}}
-        {{^ZK_HA_SERVERS}}
-        {{#ZK_SERVERS}}
-          {
-            "host": "{{host}}",
-            "port": {{port}}
-          }{{^last}}, {{/last}}
-        {{/ZK_SERVERS}}
-        {{/ZK_HA_SERVERS}}
-        ],
-        "timeout": 60000
+        "connStr": "{{#ZK_HA_SERVERS}}{{host}}:{{port}}{{^last}},{{/last}}{{/ZK_HA_SERVERS}}{{^ZK_HA_SERVERS}}{{#ZK_SERVERS}}{{host}}:{{port}}{{^last}},{{/last}}{{/ZK_SERVERS}}{{/ZK_HA_SERVERS}}",
+        "opts": {
+            "sessionTimeout": 60000,
+            "spinDelay": 1000,
+            "retries": 60
+        }
     },
     "disableSitter": {{^DISABLE_SITTER}}false{{/DISABLE_SITTER}}{{{DISABLE_SITTER}}}
 }
