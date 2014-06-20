@@ -155,6 +155,7 @@ sdc_log_rotation_add manatee-sitter /var/svc/log/*manatee-sitter*.log 1g
 sdc_log_rotation_add manatee-sitter /var/svc/log/*manatee-snapshotter*.log 1g
 sdc_log_rotation_add manatee-sitter /var/svc/log/*manatee-backupserver*.log 1g
 sdc_log_rotation_add postgres /var/svc/log/postgresql.log 1g
+sdc_log_rotation_setup_end
 
 # Do the SDC-specific manatee stuff.
 sdc_manatee_setup
