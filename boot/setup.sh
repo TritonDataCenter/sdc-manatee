@@ -133,9 +133,9 @@ function add_manatee_profile_functions {
     #functions
     echo "zbunyan() { bunyan -c \"this.component !== 'ZKPlus'\"; }" >> $PROFILE
     echo "mbunyan() { bunyan -c \"this.component !== 'ZKPlus'\"  -c 'level >= 30'; }" >> $PROFILE
-    echo "manatee-history(){ /opt/smartdc/manatee/node_modules/node-manatee/bin/manatee-history '$SHARD' \"\$ZK_IPS\"; }" >> $PROFILE
+    echo "manatee-history(){ /opt/smartdc/manatee/node_modules/node-manatee/bin/manatee-history 'sdc' \"\$ZK_IPS\"; }" >> $PROFILE
     echo "manatee-stat() { /opt/smartdc/manatee/node_modules/.bin/manatee-stat -p \"\$ZK_IPS\"; }" >> $PROFILE
-    echo "manatee-clear(){ /opt/smartdc/manatee/node_modules/.bin/manatee-clear '$SHARD' '$ZONE_IP' \"\$ZK_IPS\"; }" >> $PROFILE
+    echo "manatee-clear(){ /opt/smartdc/manatee/node_modules/.bin/manatee-clear 'sdc' '$ZONE_IP' \"\$ZK_IPS\"; }" >> $PROFILE
     echo "manatee-snapshots(){ /opt/smartdc/manatee/node_modules/.bin/manatee-snapshots '$DATASET'; }" >> $PROFILE
     echo "msitter(){ tail -f \`svcs -L manatee-sitter\` | mbunyan; }" >> $PROFILE
     echo "mbackupserver(){ tail -f \`svcs -L manatee-backupserver\` | mbunyan; }" >> $PROFILE
