@@ -133,7 +133,7 @@ function add_manatee_profile_functions {
     #functions
     echo "zbunyan() { bunyan -c \"this.component !== 'ZKPlus'\"; }" >> $PROFILE
     echo "mbunyan() { bunyan -c \"this.component !== 'ZKPlus'\"  -c 'level >= 30'; }" >> $PROFILE
-    echo "manatee-history(){ /opt/smartdc/manatee/node_modules/manatee/bin/manatee-history '$SHARD' \"\$ZK_IPS\"; }" >> $PROFILE
+    echo "manatee-history(){ /opt/smartdc/manatee/node_modules/node-manatee/bin/manatee-history '$SHARD' \"\$ZK_IPS\"; }" >> $PROFILE
     echo "manatee-stat() { /opt/smartdc/manatee/node_modules/.bin/manatee-stat -p \"\$ZK_IPS\"; }" >> $PROFILE
     echo "manatee-clear(){ /opt/smartdc/manatee/node_modules/.bin/manatee-clear '$SHARD' '$ZONE_IP' \"\$ZK_IPS\"; }" >> $PROFILE
     echo "manatee-snapshots(){ /opt/smartdc/manatee/node_modules/.bin/manatee-snapshots '$DATASET'; }" >> $PROFILE
@@ -149,6 +149,12 @@ CONFIG_AGENT_LOCAL_MANIFESTS_DIRS=/opt/smartdc/$role
 # Include common utility functions (then run the boilerplate)
 source /opt/smartdc/boot/lib/util.sh
 sdc_common_setup
+
+# add log rotation
+sdc_log_rotation_add manatee-sitter /var/svc/log/*manatee-sitter*.log 1g
+sdc_log_rotation_add manatee-sitter /var/svc/log/*manatee-snapshotter*.log 1g
+sdc_log_rotation_add manatee-sitter /var/svc/log/*manatee-backupserver*.log 1g
+sdc_log_rotation_add postgres /var/svc/log/postgresql.log 1g
 
 # Do the SDC-specific manatee stuff.
 sdc_manatee_setup
