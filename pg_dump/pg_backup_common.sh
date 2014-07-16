@@ -139,28 +139,30 @@ function backup ()
 
     mkdir -p $DUMP_DIR
 
-    echo "getting db tables"
-    schema=$DUMP_DIR/$date'_schema'
-    # trim the first 3 lines of the schema dump
-    sudo -u postgres psql -p 23456 moray -c '\dt' | sed -e '1,3d' > $schema
-    [[ $? -eq 0 ]] || (rm $schema; fatal "unable to read db schema")
-    for i in `sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2`
-    do
-        local time=$(date -u +%F-%H-%M-%S)
-        local dump_file=$DUMP_DIR/$date'_'$i-$time.gz
-        sudo -u postgres pg_dump -p 23456 moray -a -t $i | gsed 's/\\\\/\\/g' | sqlToJson.js | gzip -1 > $dump_file
-        [[ $? -eq 0 ]] || fatal "Unable to dump table $i"
-    done
-    if [[ -z "$1" ]]; then
+    if [[ "$1" == "JSON" ]]; then
+        echo "getting db tables"
+        schema=$DUMP_DIR/$date'_schema'
+        # trim the first 3 lines of the schema dump
+        sudo -u postgres psql -p 23456 moray -c '\dt' | sed -e '1,3d' > $schema
+        [[ $? -eq 0 ]] || (rm $schema; fatal "unable to read db schema")
+        for i in `sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2`
+        do
+            local time=$(date -u +%F-%H-%M-%S)
+            local dump_file=$DUMP_DIR/$date'_'$i-$time.gz
+            sudo -u postgres pg_dump -p 23456 moray -a -t $i | gsed 's/\\\\/\\/g' | sqlToJson.js | gzip -1 > $dump_file
+            [[ $? -eq 0 ]] || fatal "Unable to dump table $i"
+        done
+        rm $schema
+        [[ $? -eq 0 ]] || fatal "unable to remove schema"
+    fi
+    if [[ "$1" ==  "DB" ]]; then
+        echo "dumping moray db"
         # dump the entire moray db as well for manatee backups.
+        local time=$(date -u +%F-%H-%M-%S)
         full_dump_file=$DUMP_DIR/$date'_'moray-$time.gz
         sudo -u postgres pg_dump -p 23456 moray | gzip -1 > $full_dump_file
         [[ $? -eq 0 ]] || fatal "Unable to dump full moray db"
-    else
-        echo "not dumping moray db"
     fi
-    rm $schema
-    [[ $? -eq 0 ]] || fatal "unable to remove schema"
 }
 
 function upload_pg_dumps
