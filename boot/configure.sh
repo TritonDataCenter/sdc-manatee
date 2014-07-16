@@ -17,11 +17,11 @@ then
 fi
 shared_buffers="$(( $(prtconf -m) / 4 ))MB"
 sed -e "s#@@SHARED_BUFFERS@@#$shared_buffers#g" \
-    /opt/smartdc/manatee/etc/postgresql.sdc.conf.in > /opt/smartdc/manatee/etc/postgresql.sdc.conf
+    /opt/smartdc/manatee/etc/postgresql.sdc.conf.in > /opt/smartdc/manatee/etc/postgresql.sdc.conf.in2
 # maintenance_work_mem should be 1/128th of the zone's dram.
 maintenance_work_mem="$(( $(prtconf -m) / 128 ))MB"
 sed -e "s#@@MAINTENANCE_WORK_MEM@@#$maintenance_work_mem#g" \
-    /opt/smartdc/manatee/etc/postgresql.sdc.conf.in > /opt/smartdc/manatee/etc/postgresql.sdc.conf
+    /opt/smartdc/manatee/etc/postgresql.sdc.conf.in2 > /opt/smartdc/manatee/etc/postgresql.sdc.conf
 set +o errexit
 set +o pipefail
 
