@@ -52,16 +52,6 @@ ZK_IP=$(cat $CFG | json -a zkCfg.servers.0.host)
 check_lock
 mount_data_set
 backup 1
-for tries in {1..5}; do
-    echo "upload attempt $tries"
-    upload_pg_dumps
-    if [[ $? -eq 0 ]]; then
-        echo "successfully finished uploading attempt $tries"
-        cleanup
-        exit 0
-    else
-        echo "attempt $tries failed"
-    fi
-done
+mv_pg_dumps
 
 fatal "unable to upload all pg dumps"
