@@ -64,6 +64,7 @@ release: all deps docs $(SMF_MANIFESTS)
 		$(ROOT)/etc \
 		$(ROOT)/node_modules \
 		$(ROOT)/package.json \
+		$(ROOT)/pg_dump \
 		$(ROOT)/sapi_manifests \
 		$(ROOT)/smf \
 		$(RELSTAGEDIR)/root/opt/smartdc/manatee/
