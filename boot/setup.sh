@@ -151,7 +151,7 @@ function add_manatee_profile_functions {
     echo "msitter(){ tail -f \`svcs -L manatee-sitter\` | mbunyan; }" >> $PROFILE
     echo "mbackupserver(){ tail -f \`svcs -L manatee-backupserver\` | mbunyan; }" >> $PROFILE
     echo "msnapshotter(){ tail -f \`svcs -L manatee-snapshotter\` | mbunyan; }" >> $PROFILE
-    echo "manatee-stat(){ manatee-adm.js status; }" >> $PROFILE
+    echo "manatee-stat(){ manatee-adm status; }" >> $PROFILE
 }
 
 
