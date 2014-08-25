@@ -13,6 +13,6 @@
     },
     "dependencies": {
         "carrier": "0.2.0",
-        "manatee": "git+ssh://git@github.com:joyent/manatee.git#bc6bcb8"
+        "manatee": "git+ssh://git@github.com:joyent/manatee.git#a24dde"
     }
 }
