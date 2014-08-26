@@ -1,4 +1,13 @@
 #!/bin/bash
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+#
+# Copyright (c) 2014, Joyent, Inc.
+#
 
 # Postgres backup script. This script takes a snapshot of the current postgres
 # data dir, then mounts said snapshot, and dumps all of the tables from
