@@ -24,7 +24,7 @@ DATASET=
 DATE=
 DUMP_DATASET=
 DUMP_DIR=/var/tmp/upload/$(uuid)
-MANATEE_LOCK=/opt/smartdc/manatee/node_modules/node-manatee/bin/manatee-lock
+MANATEE_LOCK=/opt/smartdc/manatee/node_modules/.bin/manatee-adm
 MANATEE_STAT=manatee-stat
 MANTA_DIR_PREFIX=/poseidon/stor/manatee_backups
 MMKDIR=mmkdir
@@ -62,7 +62,7 @@ function fatal
 
 function check_lock
 {
-    $MANATEE_LOCK $LOCK_PATH $ZK_IP
+    $MANATEE_LOCK check-lock -p $LOCK_PATH
     [[ $? -eq 0 ]] || fatal "lock either exists or unable to check lock"
 }
 
