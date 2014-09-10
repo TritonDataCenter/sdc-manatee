@@ -8,5 +8,12 @@
     Copyright (c) 2014, Joyent, Inc.
 -->
 
-The "manatee" core zone in SDC.
+# sdc-my-repo-name
+
+This repository is part of the Joyent SmartDataCenter project (SDC).  For
+contribution guidelines, issues, and general documentation, visit the main
+[SDC](http://github.com/joyent/sdc) project page.
+
+This respository contains configuration information and deployment scripts for
+the SDC version of [Manatee](http://github.com/joyent/manatee).
 
