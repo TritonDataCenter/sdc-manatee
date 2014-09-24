@@ -6,7 +6,7 @@
     "author": "Joyent (joyent.com)",
     "repository": {
         "type": "git",
-        "url": "git@git.joyent.com:sdc-manatee.git"
+        "url": "git@github.com:joyent/sdc-manatee.git"
     },
     "engines": {
         "node": ">=0.10"
