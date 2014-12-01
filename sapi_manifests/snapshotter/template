@@ -3,5 +3,7 @@
   "snapshotDir": "/manatee/pg/.zfs/snapshot/",
   "pollInterval": 3600000,
   "snapshotNumber": 50,
-  "startupDelay": 90000
+  "startupDelay": 90000,
+  "__comment__": "The health check port is postgresPort + 1",
+  "healthUrl": "http://localhost:5433"
 }
