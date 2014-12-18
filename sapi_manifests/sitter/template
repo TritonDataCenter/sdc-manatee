@@ -47,7 +47,7 @@
         "opts": {
             "sessionTimeout": 60000,
             "spinDelay": 1000,
-            "retries": 31536000
+            "retries": 2
         }
     },
     "disableSitter": {{^DISABLE_SITTER}}false{{/DISABLE_SITTER}}{{{DISABLE_SITTER}}}
