@@ -136,12 +136,10 @@ function add_manatee_profile_functions {
     #.bashrc
     echo "export PATH=\$PATH:/opt/smartdc/manatee/bin/:/opt/smartdc/manatee/pg_dump/:/opt/smartdc/manatee/node_modules/manatee/bin" >>/root/.bashrc
     echo "export MANPATH=\$MANPATH:/opt/smartdc/manatee/node_modules/manatee/man" >> /root/.bashrc
-    # get correct ZK_IPS
-    echo "source /opt/smartdc/etc/zk_ips.sh" >> $PROFILE
 
     # get correct ZK_IPS
     echo "source /opt/smartdc/etc/zk_ips.sh" >> $PROFILE
-    echo "export ZK_IPS=\"$ZK_IPS\"" >> $PROFILE
+    echo "export ZK_IPS=\"\$(echo \$ZK_IPS | cut -d' ' -f1)\"" >> $PROFILE
 
     # export shard
     local shard=$(cat /opt/smartdc/manatee/etc/sitter.json | json shardPath | \
