@@ -20,8 +20,7 @@ MANTA_URL=$(mdata-get manta_url)
 MANTA_USER="poseidon"
 MANTA_KEY_ID=$(ssh-keygen -lf ~/.ssh/id_rsa.pub | cut -d ' ' -f2)
 MANATEE_STAT=/opt/smartdc/manatee/bin/manatee-stat
-ZONE_UUID=$(zoneadm list -p | cut -d ':' -f2)
-DATASET=zones/$ZONE_UUID/data/manatee
+DATASET=zones/$(zonename)/data/manatee
 
 mmkdir='/opt/smartdc/manatee/node_modules/manta/bin/mmkdir'
 mput='/opt/smartdc/manatee/node_modules/manta/bin/mput'

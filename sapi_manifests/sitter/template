@@ -3,8 +3,8 @@
     "postgresPort": 5432,
     "shardPath": "/manatee/{{manatee_shard}}",
     "ttl": 60,
-    "ip": "{{PRIMARY_IP}}",
-    "zoneId": "{{ZONE_UUID}}",
+    "ip": "{{auto.PRIMARY_IP}}",
+    "zoneId": "{{auto.ZONENAME}}",
     "postgresMgrCfg": {
         "dataDir": "/manatee/pg/data",
         "dbUser": "postgres",
@@ -20,22 +20,22 @@
         "recoveryConf": "/opt/smartdc/manatee/etc/recovery.conf",
         "replicationTimeout": 90000,
         "snapShotterCfg": {
-            "dataset": "zones/{{{ZONE_UUID}}}/data/manatee",
+            "dataset": "zones/{{{auto.ZONENAME}}}/data/manatee",
             "snapshotDir": "/manatee/pg/.zfs/snapshot/",
             "pollInterval": 5000,
             "snapshotNumber": 5,
-            "pgUrl": "tcp://postgres@{{{PRIMARY_IP}}}:5432/postgres"
+            "pgUrl": "tcp://postgres@{{{auto.PRIMARY_IP}}}:5432/postgres"
         },
         "syncStateCheckerCfg": {
             "interval": 1000,
             "cookieLocation": "/var/tmp/manatee_sync_state"
         },
-        "url": "tcp://postgres@{{{PRIMARY_IP}}}:5432/postgres",
+        "url": "tcp://postgres@{{{auto.PRIMARY_IP}}}:5432/postgres",
         "zfsClientCfg": {
-            "dataset": "zones/{{{ZONE_UUID}}}/data/manatee",
-            "parentDataset": "zones/{{{ZONE_UUID}}}/data",
+            "dataset": "zones/{{{auto.ZONENAME}}}/data/manatee",
+            "parentDataset": "zones/{{{auto.ZONENAME}}}/data",
             "snapshotDir": "/manatee/pg/.zfs/snapshot/",
-            "zfsHost": "{{{PRIMARY_IP}}}",
+            "zfsHost": "{{{auto.PRIMARY_IP}}}",
             "zfsPort": 1234,
             "pollInterval": 1000,
             "zfsPath": "/usr/sbin/zfs",

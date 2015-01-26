@@ -37,8 +37,6 @@ function sdc_manatee_setup {
     DATASET_MOUNT_DIR=/manatee/pg
     PG_DIR=/manatee/pg/data
     PG_LOG_DIR=/var/pg
-    ZONE_IP=$(json -f /var/tmp/metadata.json ADMIN_IP)
-    SHARD=$(json -f /var/tmp/metadata.json SERVICE_NAME)
     BINDER_ADMIN_IPS=$(json -f /var/tmp/metadata.json binder_admin_ips)
 
     # Cookie to identify this as a SmartDC zone and its role
