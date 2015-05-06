@@ -154,13 +154,34 @@ function backup ()
         # trim the first 3 lines of the schema dump
         sudo -u postgres psql -p 23456 moray -c '\dt' | sed -e '1,3d' > $schema
         [[ $? -eq 0 ]] || (rm $schema; fatal "unable to read db schema")
-        for i in `sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2`
+        for i in `sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2 | grep -v ^napi_ips_`
         do
             local time=$(date -u +%F-%H-%M-%S)
             local dump_file=$DUMP_DIR/$date'_'$i-$time.gz
             sudo -u postgres pg_dump -p 23456 moray -a -t $i | gsed 's/\\\\/\\/g' | sqlToJson.js | gzip -1 > $dump_file
             [[ $? -eq 0 ]] || fatal "Unable to dump table $i"
         done
+        #
+        # If we have napi_ips_* tables, dump them to separate files based on the
+        # first two hex characters of their uuid, since there will be many
+        # thousands of these tables and otherwise pg_dump runs postgres out of
+        # shared memory. (See NET-307)
+        #
+        # We don't run these through sqlToJson.js because the table information
+        # is critical to restoring here.
+        #
+        if [[ -n $(sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2 | grep ^napi_ips_ | head -1) ]]; then
+            for idx in $(seq 0 255); do
+                local prefix=$(printf "%02x" ${idx})
+                if [[ -n $(sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2 | grep ^napi_ips_${prefix} | head -1) ]]; then
+                    local time=$(date -u +%F-%H-%M-%S)
+                    local dump_file=$DUMP_DIR/$date'_'napi_ips_${prefix}-$time.gz
+                    sudo -u postgres pg_dump -p 23456 moray -a -t "napi_ips_${prefix}*" \
+                        | gzip -1 > $dump_file
+                    [[ $? -eq 0 ]] || fatal "Unable to dump napi_ips_${prefix}* tables"
+                fi
+            done
+        fi
         rm $schema
         [[ $? -eq 0 ]] || fatal "unable to remove schema"
     fi
