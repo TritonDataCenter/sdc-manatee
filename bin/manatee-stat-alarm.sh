@@ -16,5 +16,6 @@ export PATH=$PATH:/opt/local/bin
 source /root/.bashrc
 
 if ! manatee-adm verify; then
-    echo fail && exit;
+    echo fail
+    exit 1
 fi
