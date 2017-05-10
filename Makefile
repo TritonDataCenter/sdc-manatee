@@ -28,7 +28,7 @@ SMF_MANIFESTS_IN = smf/manifests/backupserver.xml.in \
 # Variables
 #
 
-NODE_PREBUILT_VERSION   := v0.10.26
+NODE_PREBUILT_VERSION   := v0.10.48
 NODE_PREBUILT_TAG       := zone
 # This is sdc-minimal-multiarch-lts@15.4.1, compat with
 # triton-origin-multiarch-15.4.1.
