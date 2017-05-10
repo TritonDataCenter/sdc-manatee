@@ -30,8 +30,9 @@ SMF_MANIFESTS_IN = smf/manifests/backupserver.xml.in \
 
 NODE_PREBUILT_VERSION   := v0.10.26
 NODE_PREBUILT_TAG       := zone
-# Allow building on a SmartOS image other than sdc-multiarch/13.3.1.
-NODE_PREBUILT_IMAGE=b4bdc598-8939-11e3-bea4-8341f6861379
+# This is sdc-minimal-multiarch-lts@15.4.1, compat with
+# triton-origin-multiarch-15.4.1.
+NODE_PREBUILT_IMAGE=18b094b0-eb01-11e5-80c1-175dac7ddf02
 
 
 include ./tools/mk/Makefile.defs
@@ -97,4 +98,3 @@ include ./tools/mk/Makefile.deps
 include ./tools/mk/Makefile.node_prebuilt.targ
 include ./tools/mk/Makefile.smf.targ
 include ./tools/mk/Makefile.targ
-
