@@ -5,7 +5,7 @@
 #
 
 #
-# Copyright (c) 2014, Joyent, Inc.
+# Copyright (c) 2017, Joyent, Inc.
 #
 
 #
@@ -57,16 +57,15 @@ all: $(SMF_MANIFESTS) | $(NPM_EXEC) $(REPO_DEPS) sdc-scripts
 DISTCLEAN_FILES = ./node_modules
 
 .PHONY: release
-release: all deps docs $(SMF_MANIFESTS)
+release: all deps docs pg $(SMF_MANIFESTS)
 	@echo "Building $(RELEASE_TARBALL)"
-	@mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/manatee
+	@mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/manatee/deps
 	@mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/boot
 	@mkdir -p $(RELSTAGEDIR)/site
 	@touch $(RELSTAGEDIR)/site/.do-not-delete-me
 	@mkdir -p $(RELSTAGEDIR)/root
 	cp -r   $(ROOT)/build \
 		$(ROOT)/bin \
-		$(ROOT)/deps \
 		$(ROOT)/etc \
 		$(ROOT)/node_modules \
 		$(ROOT)/package.json \
@@ -74,6 +73,8 @@ release: all deps docs $(SMF_MANIFESTS)
 		$(ROOT)/sapi_manifests \
 		$(ROOT)/smf \
 		$(RELSTAGEDIR)/root/opt/smartdc/manatee/
+	cp -r $(ROOT)/deps/sdc-scripts \
+	    $(RELSTAGEDIR)/root/opt/smartdc/manatee/deps
 	mkdir -p $(RELSTAGEDIR)/root/opt/smartdc/boot/scripts
 	cp -R $(ROOT)/boot/* \
 	    $(RELSTAGEDIR)/root/opt/smartdc/boot/
@@ -92,6 +93,12 @@ publish: release
 	cp $(ROOT)/$(RELEASE_TARBALL) $(BITS_DIR)/sdc-manatee/$(RELEASE_TARBALL)
 
 sdc-scripts: deps/sdc-scripts/.git
+
+.PHONY: pg
+pg: all deps/postgresql92/.git deps/postgresql96/.git deps/pg_repack/.git
+	$(MAKE) -C node_modules/manatee -f Makefile.postgres \
+		RELSTAGEDIR="$(RELSTAGEDIR)" \
+		DEPSDIR="$(ROOT)/deps"
 
 include ./tools/mk/Makefile.deps
 include ./tools/mk/Makefile.node_prebuilt.targ

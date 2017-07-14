@@ -7,27 +7,49 @@
 #
 
 #
-# Copyright (c) 2014, Joyent, Inc.
+# Copyright (c) 2017, Joyent, Inc.
 #
 
-export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+export PS4
 set -o xtrace
+
+#
+# Disable the protection against RST reflection denial-of-service attacks.
+# In order for system liveliness when PostgreSQL is not running, we need to
+# be able to send a RST for every inbound connection to a closed port.  This
+# is only safe because we run Manatee on an isolated network.
+#
+# The long-term stability of this interface is not completely clear, so we
+# ignore the exit status of ndd(1M).  To do otherwise may unintentionally
+# create a flag day with future platform versions.
+#
+/usr/sbin/ndd -set /dev/tcp tcp_rst_sent_rate_enabled 0
 
 # set shared_buffers to 1/4 provisoned RSS
 set -o errexit
 set -o pipefail
-# make a backup if non exists.
-if [[ ! -f /opt/smartdc/manatee/etc/postgresql.sdc.conf.in ]]
-then
-    cp /opt/smartdc/manatee/etc/postgresql.sdc.conf /opt/smartdc/manatee/etc/postgresql.sdc.conf.in
-fi
+
 shared_buffers="$(( $(prtconf -m) / 4 ))MB"
-sed -e "s#@@SHARED_BUFFERS@@#$shared_buffers#g" \
-    /opt/smartdc/manatee/etc/postgresql.sdc.conf.in > /opt/smartdc/manatee/etc/postgresql.sdc.conf.in2
 # maintenance_work_mem should be 1/128th of the zone's dram.
 maintenance_work_mem="$(( $(prtconf -m) / 128 ))MB"
-sed -e "s#@@MAINTENANCE_WORK_MEM@@#$maintenance_work_mem#g" \
-    /opt/smartdc/manatee/etc/postgresql.sdc.conf.in2 > /opt/smartdc/manatee/etc/postgresql.sdc.conf
+
+function expandPgConfig() {
+    ETC_DIR=$1
+
+    # Make a backup if one doesn't already exist.
+    if [[ ! -f $ETC_DIR/postgresql.sdc.conf.in ]]; then
+        cp $ETC_DIR/postgresql.sdc.conf $ETC_DIR/postgresql.sdc.conf.in
+    fi
+
+    sed -e "s#@@SHARED_BUFFERS@@#$shared_buffers#g" \
+        -e "s#@@MAINTENANCE_WORK_MEM@@#$maintenance_work_mem#g" \
+        $ETC_DIR/postgresql.sdc.conf.in > $ETC_DIR/postgresql.sdc.conf
+}
+
+expandPgConfig /opt/smartdc/manatee/etc/9.2
+expandPgConfig /opt/smartdc/manatee/etc/9.6
+
 set +o errexit
 set +o pipefail
 
