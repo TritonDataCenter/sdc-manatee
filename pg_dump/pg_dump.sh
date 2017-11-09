@@ -52,8 +52,10 @@ if [[ $? = '1' ]]; then
     take_zfs_snapshot
     check_lock
     mount_data_set
+
+    # Note: backup() will move each dump file into the
+    # archive location automatically.
     backup 'JSON'
-    move_pg_dumps
 else
     echo "not performing backup, not lowest peer in shard"
     exit 0
