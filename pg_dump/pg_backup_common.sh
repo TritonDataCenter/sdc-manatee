@@ -6,7 +6,7 @@
 #
 
 #
-# Copyright (c) 2014, Joyent, Inc.
+# Copyright (c) 2018, Joyent, Inc.
 #
 
 # common functions used by postgres backup scripts
@@ -16,7 +16,7 @@ export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}
 set -o xtrace
 set -o pipefail
 
-PATH=/opt/smartdc/manatee/build/node/bin:/opt/local/bin:/usr/sbin/:/usr/bin:/usr/sbin:/usr/bin:/opt/smartdc/registrar/build/node/bin:/opt/smartdc/manatee/node_modules/.bin:/opt/smartdc/registrar/node_modules/.bin:/opt/smartdc/manatee/lib/tools:/opt/smartdc/manatee/pg_dump/
+PATH=$PATH:/opt/smartdc/manatee/node_modules/.bin:/opt/smartdc/manatee/pg_dump/
 
 FATAL=
 CFG=/opt/smartdc/manatee/etc/backup.json
