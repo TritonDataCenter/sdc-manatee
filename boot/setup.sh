@@ -47,10 +47,6 @@ function sdc_manatee_setup {
     mkdir -p /opt/smartdc/$role/etc
     /usr/bin/chown -R root:root /opt/smartdc
 
-    # Add build/node/bin and node_modules/.bin to PATH
-    echo "" >>/root/.profile
-    echo "export PATH=\$PATH:/opt/smartdc/$role/build/node/bin:/opt/smartdc/$role/node_modules/.bin" >>/root/.profile
-
     #cron
     mkdir -p /var/log/manatee/
     local crontab=/tmp/.sdc_manatee_cron
@@ -146,8 +142,15 @@ function common_manatee_setup {
 function add_manatee_profile_functions {
     ZK_IPS=${BINDER_ADMIN_IPS}
 
-    #.bashrc
-    echo "export PATH=\$PATH:/opt/smartdc/manatee/bin/:/opt/smartdc/manatee/pg_dump/:/opt/smartdc/manatee/node_modules/manatee/bin:/opt/postgresql/current/bin" >> /root/.bashrc
+    # .bashrc
+    #
+    # - An external promise to sdcadm (e.g. `sdcadm post-setup ha-binder`) is
+    #   that the following works:
+    #       zlogin $manateeUuid 'source ~/.bashrc; manatee-adm state'
+    #   this requires having both "manatee-adm" and ".../build/node/bin/node"
+    #   on the PATH.
+    #
+    echo "export PATH=\$PATH:/opt/smartdc/manatee/bin/:/opt/smartdc/manatee/pg_dump/:/opt/smartdc/manatee/build/node/bin:/opt/smartdc/manatee/node_modules/manatee/bin:/opt/postgresql/current/bin" >> /root/.bashrc
     echo "export MANPATH=\$MANPATH:/opt/smartdc/manatee/node_modules/manatee/man" >> /root/.bashrc
 
     # get correct ZK_IPS
