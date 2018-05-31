@@ -60,8 +60,6 @@ function sdc_manatee_setup {
     # rotate pgdump logs
     sdc_log_rotation_add pgdump /var/log/manatee/pgdump.log 1g
 
-    sdc_log_rotation_setup_end
-
     common_manatee_setup
 
     common_enable_services
@@ -183,16 +181,16 @@ CONFIG_AGENT_LOCAL_MANIFESTS_DIRS=/opt/smartdc/$role
 source /opt/smartdc/boot/lib/util.sh
 sdc_common_setup
 
+# Do the SDC-specific manatee stuff.
+sdc_manatee_setup
+add_manatee_profile_functions
+
 # add log rotation
 sdc_log_rotation_add manatee-sitter /var/svc/log/*manatee-sitter*.log 1g
 sdc_log_rotation_add manatee-snapshotter /var/svc/log/*manatee-snapshotter*.log 1g
 sdc_log_rotation_add manatee-backupserver /var/svc/log/*manatee-backupserver*.log 1g
 sdc_log_rotation_add manatee-postgres /var/pg/postgresql.log 1g
 sdc_log_rotation_setup_end
-
-# Do the SDC-specific manatee stuff.
-sdc_manatee_setup
-add_manatee_profile_functions
 
 # All done, run boilerplate end-of-setup
 sdc_setup_complete
