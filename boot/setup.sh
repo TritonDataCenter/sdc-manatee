@@ -77,6 +77,9 @@ function common_enable_services {
 
     svccfg import /opt/smartdc/manatee/smf/manifests/sitter.xml
     # For SDC we'll let configure decide if it wants to enable sitter or not.
+
+    echo "Starting waferlock"
+    svccfg import /opt/smartdc/waferlock/smf/manifests/waferlock.xml
 }
 
 function common_manatee_setup {
@@ -175,7 +178,7 @@ function add_manatee_profile_functions {
 
 
 # Local manifests
-CONFIG_AGENT_LOCAL_MANIFESTS_DIRS=/opt/smartdc/$role
+CONFIG_AGENT_LOCAL_MANIFESTS_DIRS="/opt/smartdc/$role /opt/smartdc/waferlock"
 
 # Include common utility functions (then run the boilerplate)
 source /opt/smartdc/boot/lib/util.sh
@@ -189,6 +192,7 @@ add_manatee_profile_functions
 sdc_log_rotation_add manatee-sitter /var/svc/log/*manatee-sitter*.log 1g
 sdc_log_rotation_add manatee-snapshotter /var/svc/log/*manatee-snapshotter*.log 1g
 sdc_log_rotation_add manatee-backupserver /var/svc/log/*manatee-backupserver*.log 1g
+sdc_log_rotation_add waferlock /var/svc/log/*waferlock*.log 1g
 sdc_log_rotation_add manatee-postgres /var/pg/postgresql.log 1g
 sdc_log_rotation_setup_end
 
