@@ -28,7 +28,7 @@ SMF_MANIFESTS_IN = smf/manifests/backupserver.xml.in \
 # Variables
 #
 
-NODE_PREBUILT_VERSION   := v0.10.26
+NODE_PREBUILT_VERSION   := v0.10.48
 NODE_PREBUILT_TAG       := zone
 # Allow building on a SmartOS image other than sdc-multiarch/13.3.1.
 NODE_PREBUILT_IMAGE=b4bdc598-8939-11e3-bea4-8341f6861379
