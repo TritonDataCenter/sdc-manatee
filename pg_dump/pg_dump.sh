@@ -6,7 +6,7 @@
 #
 
 #
-# Copyright (c) 2014, Joyent, Inc.
+# Copyright (c) 2018, Joyent, Inc.
 #
 
 # Postgres backup script. This script takes a snapshot of the current postgres
@@ -24,7 +24,7 @@ PG_DIR=
 UPLOAD_SNAPSHOT=
 MY_IP=
 SHARD_NAME=
-ZK_IP=
+ZK_CS=
 
 # mainline
 
@@ -35,6 +35,10 @@ if [[ -z "$1" ]]
         PG_START_TIMEOUT=$1
 fi
 
+BUILD_ZK_CS="this.zk_cs = this.zkCfg.servers.map(function (s) {"
+BUILD_ZK_CS+=" return (s.host + ':' + s.port);"
+BUILD_ZK_CS+="}).join(',');"
+
 DATASET=$(cat $ZFS_CFG | json dataset)
 [[ -n "$DATASET" ]] || fatal "unable to retrieve DATASET"
 DUMP_DATASET=zones/$(zonename)/data/pg_dump
@@ -44,8 +48,8 @@ MY_IP=$(mdata-get sdc:nics.0.ip)
 [[ -n "$MY_IP" ]] || fatal "Unable to retrieve our own IP address"
 # XXX get this dynamically somehow.
 SHARD_NAME=sdc
-ZK_IP=$(cat $CFG | json -a zkCfg.servers.0.host)
-[[ -n "$ZK_IP" ]] || fatal "Unable to retrieve nameservers from metadata"
+ZK_CS=$(cat $CFG | json -e "${BUILD_ZK_CS}" zk_cs)
+[[ -n "$ZK_CS" ]] || fatal "Unable to retrieve nameservers from metadata"
 
 get_self_role
 if [[ $? = '1' ]]; then

@@ -25,7 +25,7 @@ DATE=
 DUMP_DATASET=
 DUMP_DIR=/var/tmp/upload/$(uuid)
 MANATEE_LOCK=/opt/smartdc/manatee/node_modules/.bin/manatee-adm
-MANATEE_STAT=manatee-stat
+MANATEE_ADM=/opt/smartdc/manatee/node_modules/manatee/bin/manatee-adm
 MANTA_DIR_PREFIX=/poseidon/stor/manatee_backups
 MMKDIR=mmkdir
 MPUT=mput
@@ -40,7 +40,7 @@ PG_START_TRIES=0
 UPLOAD_SNAPSHOT=
 ZFS_CFG=/opt/smartdc/manatee/etc/snapshotter.json
 ZFS_SNAPSHOT=$1
-ZK_IP=
+ZK_CS=
 
 function finish {
     if [[ $FATAL -ne 1 ]]; then
@@ -247,7 +247,7 @@ function get_self_role
     read -r shard_name_delim< <(echo $SHARD_NAME | gsed -e 's|\.|\\.|g')
 
     # figure out if we are the peer that should perform backups.
-    local shard_info=$($MANATEE_STAT $ZK_IP:2181 -s $SHARD_NAME)
+    local shard_info=$($MANATEE_ADM status -z $ZK_CS -s $SHARD_NAME)
     [[ -n $shard_info ]] || fatal "Unable to retrieve shardinfo from zookeeper"
 
     local async=$(echo $shard_info | json $shard_name_delim.async.ip)
