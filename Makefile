@@ -5,8 +5,10 @@
 #
 
 #
-# Copyright (c) 2018, Joyent, Inc.
+# Copyright (c) 2019, Joyent, Inc.
 #
+
+NAME = sdc-manatee
 
 #
 # Tools
@@ -30,17 +32,27 @@ SMF_MANIFESTS_IN = smf/manifests/backupserver.xml.in \
 
 NODE_PREBUILT_VERSION   := v0.10.48
 NODE_PREBUILT_TAG       := zone
-# Allow building on a SmartOS image other than sdc-multiarch/13.3.1.
-NODE_PREBUILT_IMAGE=b4bdc598-8939-11e3-bea4-8341f6861379
+# sdc-minimal-multiarch-lts 15.4.1
+NODE_PREBUILT_IMAGE=18b094b0-eb01-11e5-80c1-175dac7ddf02
 
+ENGBLD_USE_BUILDIMAGE	= true
+ENGBLD_REQUIRE		:= $(shell git submodule update --init deps/eng)
+include ./deps/eng/tools/mk/Makefile.defs
+TOP ?= $(error Unable to access eng.git submodule Makefiles.)
 
-include ./tools/mk/Makefile.defs
-include ./tools/mk/Makefile.node_prebuilt.defs
-include ./tools/mk/Makefile.smf.defs
+include ./deps/eng/tools/mk/Makefile.node_prebuilt.defs
+include ./deps/eng/tools/mk/Makefile.agent_prebuilt.defs
+include ./deps/eng/tools/mk/Makefile.smf.defs
 
-RELEASE_TARBALL         := sdc-manatee-pkg-$(STAMP).tar.bz2
+RELEASE_TARBALL         := $(NAME)-pkg-$(STAMP).tar.gz
 ROOT                    := $(shell pwd)
-RELSTAGEDIR             := /tmp/$(STAMP)
+RELSTAGEDIR             := /tmp/$(NAME)-$(STAMP)
+
+BASE_IMAGE_UUID = 04a48d7d-6bb5-4e83-8c3b-e60a99e0f48f
+BUILDIMAGE_NAME = sdc-postgres
+BUILDIMAGE_DESC	= SDC manatee
+BUILDIMAGE_PKGSRC = lz4-131nb1
+AGENTS		= amon config registrar waferlock
 
 #
 # Env variables
@@ -80,17 +92,13 @@ release: all deps docs pg $(SMF_MANIFESTS)
 	    $(RELSTAGEDIR)/root/opt/smartdc/boot/
 	cp -R $(ROOT)/deps/sdc-scripts/* \
 	    $(RELSTAGEDIR)/root/opt/smartdc/boot/
-	(cd $(RELSTAGEDIR) && $(TAR) -jcf $(ROOT)/$(RELEASE_TARBALL) root site)
+	(cd $(RELSTAGEDIR) && $(TAR) -I pigz -cf $(ROOT)/$(RELEASE_TARBALL) root site)
 	@rm -rf $(RELSTAGEDIR)
 
 .PHONY: publish
 publish: release
-	@if [[ -z "$(BITS_DIR)" ]]; then \
-		echo "error: 'BITS_DIR' must be set for 'publish' target"; \
-		exit 1; \
-	fi
-	mkdir -p $(BITS_DIR)/sdc-manatee
-	cp $(ROOT)/$(RELEASE_TARBALL) $(BITS_DIR)/sdc-manatee/$(RELEASE_TARBALL)
+	mkdir -p $(ENGBLD_BITS_DIR)/$(NAME)
+	cp $(ROOT)/$(RELEASE_TARBALL) $(ENGBLD_BITS_DIR)/$(NAME)/$(RELEASE_TARBALL)
 
 sdc-scripts: deps/sdc-scripts/.git
 
@@ -100,8 +108,8 @@ pg: all deps/postgresql92/.git deps/postgresql96/.git deps/pg_repack/.git
 		RELSTAGEDIR="$(RELSTAGEDIR)" \
 		DEPSDIR="$(ROOT)/deps"
 
-include ./tools/mk/Makefile.deps
-include ./tools/mk/Makefile.node_prebuilt.targ
-include ./tools/mk/Makefile.smf.targ
-include ./tools/mk/Makefile.targ
-
+include ./deps/eng/tools/mk/Makefile.deps
+include ./deps/eng/tools/mk/Makefile.node_prebuilt.targ
+include ./deps/eng/tools/mk/Makefile.agent_prebuilt.targ
+include ./deps/eng/tools/mk/Makefile.smf.targ
+include ./deps/eng/tools/mk/Makefile.targ

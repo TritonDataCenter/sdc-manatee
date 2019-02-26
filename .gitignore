@@ -1,11 +1,14 @@
+/make_stamps
 /node_modules
 /tmp
+bits
 build
 docs/*.json
 docs/*.html
 cscope.in.out
 cscope.po.out
 cscope.out
+sdc-manatee-pkg-*.tar.gz
 smf/manifests/*.xml
 *.swp
 *.*~

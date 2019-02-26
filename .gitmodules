@@ -10,3 +10,6 @@
 [submodule "deps/pg_repack"]
 	path = deps/pg_repack
 	url = https://github.com/reorg/pg_repack.git
+[submodule "deps/eng"]
+	path = deps/eng
+	url = https://github.com/joyent/eng.git
