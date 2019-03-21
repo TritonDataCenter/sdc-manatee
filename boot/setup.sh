@@ -7,7 +7,7 @@
 #
 
 #
-# Copyright (c) 2018, Joyent, Inc.
+# Copyright (c) 2019, Joyent, Inc.
 #
 
 export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -32,10 +32,7 @@ touch /opt/local/.dli_license_accepted
 function sdc_manatee_setup {
     # vars used by manatee-* tools
     ZONE_UUID=$(json -f /var/tmp/metadata.json ZONE_UUID)
-    DATASET=zones/$ZONE_UUID/data/manatee
     PARENT_DATASET=zones/$ZONE_UUID/data
-    DATASET_MOUNT_DIR=/manatee/pg
-    PG_DIR=/manatee/pg/data
     PG_LOG_DIR=/var/pg
     BINDER_ADMIN_IPS=$(json -f /var/tmp/metadata.json binder_admin_ips)
 
@@ -92,13 +89,6 @@ function common_manatee_setup {
     echo "setting recordsize to 8K on manatee dataset"
     zfs set recordsize=8k "$PARENT_DATASET"
 
-    # create manatee dataset
-    echo "creating manatee dataset"
-    zfs create -o canmount=noauto $DATASET
-
-    echo "make snapdir property match the ancestor's"
-    zfs inherit -r snapdir $DATASET
-
     # create postgres group
     echo "creating postgres group (gid=907)"
     groupadd -g 907 postgres
@@ -113,23 +103,6 @@ function common_manatee_setup {
     # give postgres user zfs permmissions.
     echo "grant postgres user zfs perms"
     zfs allow -ld postgres create,destroy,diff,hold,release,rename,setuid,rollback,share,snapshot,mount,promote,send,receive,clone,mountpoint,canmount $PARENT_DATASET
-
-    # change dataset perms such that manatee can access the dataset and mount/unmount
-    mkdir -p $DATASET_MOUNT_DIR
-    chown -R postgres $DATASET_MOUNT_DIR
-    chmod 700 -R $DATASET_MOUNT_DIR
-
-    # set mountpoint
-    zfs set mountpoint=$DATASET_MOUNT_DIR $DATASET
-
-    # mount the dataset
-    zfs mount $DATASET
-
-    # make the pg data dir
-    echo "creating $PG_DIR"
-    mkdir -p $PG_DIR
-    chown postgres $PG_DIR
-    chmod 700 $PG_DIR
 
     # add pg log dir
     mkdir -p $PG_LOG_DIR
