@@ -111,7 +111,18 @@ function mount_data_set
     # remove postmaster.pid
     rm -f $PG_DIR/postmaster.pid
 
-    ctrun -o noorphan sudo -u postgres postgres -D $PG_DIR -p 23456 -c logging_collector=off &
+    # Port over the performance startup options from manta-manatee
+    # Versions of PG after 9.5 removed the checkpoint_segments parameter
+    # if we're running on 9.2, we'll tune it, otherwise leave it alone.
+    PG_STARTUP_OPTIONS="-c logging_collector=off -c fsync=off \
+        -c synchronous_commit=off -c checkpoint_timeout=1h"
+    PG_SERVER_VERSION=$(postgres --version | cut -d' ' -f3)
+    if [[ $PG_SERVER_VERSION == 9.2* ]]; then
+        PG_STARTUP_OPTIONS+=" -c checkpoint_segments=100"
+    fi
+
+    ctrun -o noorphan sudo -u postgres postgres -D $PG_DIR -p 23456 \
+         $PG_STARTUP_OPTIONS &
     PG_PID=$!
     [[ $? -eq 0 ]] || fatal "unable to start postgres"
 
@@ -154,21 +165,31 @@ function backup ()
         # trim the first 3 lines of the schema dump
         sudo -u postgres psql -p 23456 moray -c '\dt' | sed -e '1,3d' > $schema
         [[ $? -eq 0 ]] || (rm $schema; fatal "unable to read db schema")
-        for i in `sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2 | grep -v ^napi_ips_`
+        # We walk the schema in reverse order because there happen to
+        # be some tables with names which happen to collate late in
+        # the \dt output which we'd like to finish early in the
+        # backup.
+        for i in `sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2 | grep -v ^napi_ips_ | sort -r`
         do
             local time=$(date -u +%F-%H-%M-%S)
             local dump_file=$DUMP_DIR/$date'_'$i-$time.gz
             sudo -u postgres pg_dump -p 23456 moray -a -t $i | gsed 's/\\\\/\\/g' | sqlToJson.js | gzip -1 > $dump_file
             [[ $? -eq 0 ]] || fatal "Unable to dump table $i"
+            # move each dump to the archive location as we complete it.
+            move_pg_dumps
         done
         #
-        # If we have napi_ips_* tables, dump them to separate files based on the
-        # first two hex characters of their uuid, since there will be many
-        # thousands of these tables and otherwise pg_dump runs postgres out of
-        # shared memory. (See NET-307)
+        # If we have napi_ips_* tables, dump them to separate files
+        # based on the first two hex characters of their uuid, since
+        # there will be many thousands of these tables and otherwise
+        # pg_dump runs postgres out of shared memory. (See NET-307)
         #
-        # We don't run these through sqlToJson.js because the table information
-        # is critical to restoring here.
+        # We don't run these through sqlToJson.js because the table
+        # information is critical to restoring here.
+        #
+        # Note: We don't reverse the order for napi_ips_* as we do the
+        # non-napi tables (that is, we dump them in collated order,
+        # not reverse collated order).
         #
         if [[ -n $(sed 'N;$!P;$!D;$d' $schema | tr -d ' '| cut -d '|' -f2 | grep ^napi_ips_ | head -1) ]]; then
             for idx in $(seq 0 255); do
@@ -181,7 +202,10 @@ function backup ()
                     [[ $? -eq 0 ]] || fatal "Unable to dump napi_ips_${prefix}* tables"
                 fi
             done
+            # move each dump to the archive location as we complete it.
+            move_pg_dumps
         fi
+
         rm $schema
         [[ $? -eq 0 ]] || fatal "unable to remove schema"
     fi
