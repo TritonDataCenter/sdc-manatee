@@ -1,15 +1,15 @@
 [submodule "deps/sdc-scripts"]
 	path = deps/sdc-scripts
-	url = https://github.com/joyent/sdc-scripts.git
+	url = https://github.com/TritonDataCenter/sdc-scripts.git
 [submodule "deps/postgresql92"]
 	path = deps/postgresql92
 	url = https://github.com/postgres/postgres.git
 [submodule "deps/postgresql96"]
 	path = deps/postgresql96
-	url = https://github.com/joyent/postgres.git
+	url = https://github.com/TritonDataCenter/postgres.git
 [submodule "deps/pg_repack"]
 	path = deps/pg_repack
 	url = https://github.com/reorg/pg_repack.git
 [submodule "deps/eng"]
 	path = deps/eng
-	url = https://github.com/joyent/eng.git
+	url = https://github.com/TritonDataCenter/eng.git
