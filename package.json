@@ -1,19 +1,19 @@
 {
     "name": "sdc-manatee",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "private": true,
     "description": "H/A Postgres Minder",
-    "author": "Joyent (joyent.com)",
+    "author": "Edgecast Cloud (edgecast.io)",
     "repository": {
         "type": "git",
-        "url": "git@github.com:joyent/sdc-manatee.git"
+        "url": "git@github.com:tritondatacenter/sdc-manatee.git"
     },
     "engines": {
         "node": ">=0.10"
     },
     "dependencies": {
         "carrier": "0.2.0",
-        "manatee": "git+https://github.com/joyent/manatee.git#6e802583f517e74f8e6c1ccab26b01ce2bbbf8f9"
+        "manatee": "git+https://github.com/tritondatacenter/manatee.git#67652a5f34c1b3ec4d783b0af5a2a3cbd6ea7877"
     },
     "sdcDependencies": {
         "config-agent": ">=1.2.0"
