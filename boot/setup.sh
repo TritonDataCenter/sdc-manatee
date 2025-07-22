@@ -8,6 +8,7 @@
 
 #
 # Copyright (c) 2019, Joyent, Inc.
+# Copyright 2025 Edgecast Cloud LLC.
 #
 
 export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -168,6 +169,9 @@ sdc_log_rotation_add manatee-backupserver /var/svc/log/*manatee-backupserver*.lo
 sdc_log_rotation_add waferlock /var/svc/log/*waferlock*.log 1g
 sdc_log_rotation_add manatee-postgres /var/pg/postgresql.log 1g
 sdc_log_rotation_setup_end
+
+# Add metricsPorts metadata for cmon-agent discovery
+mdata-put metricPorts 5433
 
 # All done, run boilerplate end-of-setup
 sdc_setup_complete
